@@ -55,12 +55,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
 #overlay.open{display:block;}
 #drawer{position:fixed;top:0;left:0;bottom:0;width:var(--nav-w);background:var(--bg);z-index:50;transform:translateX(-100%);transition:transform .25s ease;box-shadow:2px 0 8px rgba(0,0,0,.2);display:flex;flex-direction:column;}
 #drawer.open{transform:translateX(0);}
-.drawer-header{background:var(--blue);color:#fff;padding:1.25rem 1rem 1rem;flex-shrink:0;}
-.drawer-logo{font-size:28px;margin-bottom:4px;}
-.drawer-title{font-size:16px;font-weight:600;}
-.drawer-sub{font-size:12px;opacity:.8;margin-top:2px;}
 .drawer-body{flex:1;overflow-y:auto;padding:.5rem 0;}
-.drawer-section{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;padding:12px 16px 4px;}
 .nav-btn{display:flex;align-items:center;gap:14px;padding:14px 16px;border:none;background:none;color:var(--text);width:100%;text-align:left;cursor:pointer;font-size:16px;border-radius:0;letter-spacing:-.1px;}
 .nav-btn:active{background:var(--bg2);}
 .nav-btn.active{background:var(--blue-bg);color:var(--blue-t);font-weight:700;}
@@ -74,9 +69,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;b
 .pchip{padding:5px 12px;border-radius:16px;font-size:12px;border:1px solid var(--border);background:var(--bg);color:var(--text2);cursor:pointer;white-space:nowrap;flex-shrink:0;}
 .pchip.active{background:var(--blue-bg);color:var(--blue-t);border-color:var(--blue);}
 .year-sel{font-size:12px;padding:5px 8px;border:1px solid var(--border);border-radius:16px;background:var(--bg);color:var(--text);margin-left:auto;flex-shrink:0;}
-
-/* DRIVE BAR */
-#drive-bar{background:var(--bg2);border-bottom:1px solid var(--border);padding:3px 10px;display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text2);flex-shrink:0;}
 
 /* CONTENT */
 #content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:16px;}
@@ -166,13 +158,6 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--blue);}
 
 /* ANNUAL */
 .annual-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px;}
-.mpill{background:var(--bg);border-radius:var(--radius);padding:8px;text-align:center;border:1px solid transparent;box-shadow:0 1px 3px rgba(0,0,0,.08);}
-.mpill.cur{border-color:var(--blue);background:var(--blue-bg);}
-.mpname{font-size:11px;color:var(--text2);}
-.mpill.cur .mpname{color:var(--blue-t);}
-.mpval{font-size:13px;font-weight:600;margin-top:1px;}
-.mpdiff{font-size:11px;margin-top:1px;}
-
 /* SUBTABS */
 .subtabs{display:flex;gap:6px;overflow-x:auto;margin-bottom:12px;padding-bottom:2px;}
 .subtabs::-webkit-scrollbar{display:none;}
@@ -327,13 +312,6 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--blue);}
     <select class="year-sel" id="yearSel" onchange="changeYear()">
       <option value="2024">2024</option><option value="2025">2025</option><option value="2026" selected>2026</option>
     </select>
-  </div>
-
-  <!-- DRIVE BAR -->
-  <div id="drive-bar">
-    <i class="ti ti-brand-google-drive" style="font-size:13px;color:#4285F4;"></i>
-    <span id="drive-status">Connectant...</span>
-    <button onclick="saveNow()" style="margin-left:auto;font-size:11px;padding:2px 8px;border-radius:10px;border:1px solid var(--border);background:var(--bg);color:var(--text2);cursor:pointer;">Desar</button>
   </div>
 
   <!-- CONTENT -->
@@ -596,6 +574,18 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--blue);}
   </div><!-- /content -->
 </div><!-- /app -->
 
+<!-- MODAL PNT -->
+<div id="pnt-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;" onclick="if(event.target===this)closePntModal()">
+  <div style="position:absolute;bottom:0;left:0;right:0;background:var(--bg);border-radius:16px 16px 0 0;padding:1.5rem;max-width:560px;margin:0 auto;box-shadow:0 -4px 24px rgba(0,0,0,.2);">
+    <div style="width:36px;height:4px;background:var(--bg3);border-radius:2px;margin:0 auto 1.25rem;"></div>
+    <div style="font-size:18px;font-weight:700;margin-bottom:16px;" id="pnt-modal-title">Afegir compte</div>
+    <div id="pnt-modal-body"></div>
+    <div style="display:flex;gap:10px;margin-top:16px;">
+      <button class="btn btn-p" style="flex:1;padding:15px;font-size:16px;" onclick="savePntModal()"><i class="ti ti-check"></i> Desar</button>
+      <button class="btn btn-o" style="flex:1;padding:15px;font-size:16px;" onclick="closePntModal()">Cancel·lar</button>
+    </div>
+  </div>
+</div>
 <div id="toast"></div>
 
 <!-- MODAL PRESSUPOST - fora del flux normal -->
@@ -724,7 +714,6 @@ function checkAuthCallback(){
 // ── DRIVE ──
 function driveStatus(state,msg){
   const dot=document.getElementById('drive-dot');
-  document.getElementById('drive-status').textContent=msg;
   document.getElementById('drive-st').textContent=state==='ok'?'✓':state==='saving'?'…':'!';
   dot.className='ddot '+(state==='ok'?'ok':state==='saving'?'saving':'err');
 }
@@ -928,7 +917,7 @@ function renderExpenses(){
   const el=document.getElementById('expense-list');
   if(!el)return;
   // Ordenar: nova despesa sempre primera, la resta per data desc
-  const rows=getExpenses().sort((a,b)=>{
+  const rows=getExpensesP().sort((a,b)=>{
     if(a.id===nouIdExp)return -1;
     if(b.id===nouIdExp)return 1;
     return(b.data||'').localeCompare(a.data||'');
@@ -990,6 +979,11 @@ function getCompteNom(id){
 
 function addExpense(){
   const today=new Date().toISOString().slice(0,10);
+  // Forçar mes actual perquè la nova despesa sigui visible
+  const now=new Date();curM=now.getMonth();curY=now.getFullYear();
+  curSel='cur';
+  document.querySelectorAll('.pchip').forEach(c=>c.classList.remove('active'));
+  const curChip=document.querySelector('.pchip[data-val="cur"]');if(curChip)curChip.classList.add('active');
   ensureM();
   const novaId=nid++;
   nouIdExp=novaId;
@@ -1006,7 +1000,7 @@ function addExpense(){
 }
 
 function updExp(id,f,v){
-  const r=getExpenses().find(r=>r.id===id);
+  const r=getExpensesP().find(r=>r.id===id);
   if(!r)return;
   r[f]=v;
   // Guardar obertes
@@ -1035,7 +1029,7 @@ let nouIdInc=null;
 function renderIncome(){
   const el=document.getElementById('income-list');
   if(!el)return;
-  const rows=getIncome().sort((a,b)=>{
+  const rows=getIncomeP().sort((a,b)=>{
     if(a.id===nouIdInc)return -1;
     if(b.id===nouIdInc)return 1;
     return(b.data||'').localeCompare(a.data||'');
@@ -1096,6 +1090,11 @@ function toggleInc(id){
 
 function addIncome(){
   const today=new Date().toISOString().slice(0,10);
+  // Forçar mes actual perquè el nou ingrés sigui visible
+  const now=new Date();curM=now.getMonth();curY=now.getFullYear();
+  curSel='cur';
+  document.querySelectorAll('.pchip').forEach(c=>c.classList.remove('active'));
+  const curChip=document.querySelector('.pchip[data-val="cur"]');if(curChip)curChip.classList.add('active');
   ensureM();
   const novaId=nid++;
   nouIdInc=novaId;
@@ -1110,7 +1109,7 @@ function addIncome(){
 }
 
 function updIncome(id,f,v){
-  const r=getIncome().find(r=>r.id===id);
+  const r=getIncomeP().find(r=>r.id===id);
   if(!r)return;
   r[f]=v;
   const obertes=new Set();
@@ -1171,14 +1170,6 @@ function getImportMes(row, m){
 function getGastatMes(cat, m, y){
   const exps=(DB.expenses[y+'-'+m]||[]);
   return exps.filter(e=>e.cat===cat).reduce((s,e)=>s+e.amount,0);
-}
-
-function renderBudget(){
-  const lbl=document.getElementById('bud-year-lbl');
-  if(lbl)lbl.textContent=getBudYear();
-  ensureBudgetAnual();
-  if(budView==='grid')renderBudgetGrid();
-  else renderBudgetMes();
 }
 
 function addBudgetRow(){
@@ -1510,8 +1501,17 @@ function renderAnual(){
   const incA=[],budA=[],expA=[];let tI=0,tB=0,tE=0;
   for(let m=0;m<12;m++){
     const i=getIncome(m,curY).reduce((s,r)=>s+r.amount,0);
-    const fxM=DB.fixed.filter(f=>f.amount&&f.desc).reduce((s,f)=>s+f.amount*(FREQS.find(fr=>fr.id===f.freq)||{m:1}).m,0);
-    const b=(DB.budget[key(m,curY)]||[]).filter(r=>!r.fromFixed).reduce((s,r)=>s+r.amount,0)+fxM;
+    let budM=0;
+    DB.fixed.forEach(f=>{
+      const freqM=(FREQS.find(fr=>fr.id===f.freq)||{m:1}).m;
+      if(f.freq==='mensual')budM+=f.amount*freqM;
+      else if(f.freq==='trimestral'&&m%3===0)budM+=f.amount;
+      else if(f.freq==='semestral'&&m%6===0)budM+=f.amount;
+      else if(f.freq==='anual'&&m===0)budM+=f.amount;
+    });
+    (DB.budgetAnual||[]).forEach(row=>budM+=getImportMes(row,m));
+    (getBudget(m,curY)||[]).forEach(r=>budM+=r.amount);
+    const b=budM;
     const e=getExpenses(m,curY).reduce((s,r)=>s+r.amount,0);
     incA.push(i);budA.push(b);expA.push(e);tI+=i;tB+=b;tE+=e;
   }
@@ -1808,13 +1808,23 @@ function addFactura(tipus){
   const y=getActYear();
   const llista=tipus==='emesa'?DB.activitat.emeses:DB.activitat.rebudes;
   const num=llista.filter(f=>new Date(f.data).getFullYear()===y).length+1;
+  const novaId=nid++;
   if(tipus==='emesa'){
-    llista.unshift({id:nid++,data:today,num:y+'/'+String(num).padStart(3,'0'),clientId:'',desc:'',base:0,iva:21,irpf:15,activitat:'economista'});
+    llista.unshift({id:novaId,data:today,num:y+'/'+String(num).padStart(3,'0'),clientId:'',desc:'',base:0,iva:21,irpf:15,activitat:'economista'});
   } else {
-    llista.unshift({id:nid++,data:today,num:'',nif:'',desc:'',base:0,iva:21,ivaDeduPct:100,inclouIVA:true,inclouIRPF:false,concepteAEAT:'\u2014 Selecciona \u2014'});
+    llista.unshift({id:novaId,data:today,num:'',nif:'',desc:'',base:0,iva:21,ivaDeduPct:100,inclouIVA:true,inclouIRPF:false,concepteAEAT:'\u2014 Selecciona \u2014'});
   }
   renderFactures();scheduleSave();
-  setTimeout(()=>{const el=document.getElementById(tipus==='emesa'?'emeses-list':'rebudes-list');if(el)el.scrollIntoView({behavior:'smooth'});},100);
+  // Scroll i obrir autom\u00e0ticament la nova factura
+  setTimeout(()=>{
+    const prefix=tipus==='emesa'?'inv-det-e':'inv-det-r';
+    const detId=prefix+novaId;
+    const icoId=detId.replace('inv-det-','inv-ico-');
+    const det=document.getElementById(detId);
+    const ico=document.getElementById(icoId);
+    if(det){det.classList.add('open');if(ico)ico.classList.add('open');det.scrollIntoView({behavior:'smooth',block:'nearest'});}
+    else{const el=document.getElementById(tipus==='emesa'?'emeses-list':'rebudes-list');if(el)el.scrollIntoView({behavior:'smooth'});}
+  },100);
 }
 function updFact(tipus,id,camp,val){
   const llista=tipus==='emesa'?DB.activitat.emeses:DB.activitat.rebudes;
@@ -2041,27 +2051,73 @@ function renderPNTLiabilities(){
   if(!DB.pnt.passius.length){el.innerHTML='<div style="font-size:13px;color:var(--text2);">Cap deute. Clica + per afegir-ne un.</div>';return;}
   el.innerHTML=DB.pnt.passius.map((p,i)=>{const deute=snap?snap.deutes[p.id]||0:0;return`<div class="pntacc"><div class="pntdot" style="background:${PNT_CP[i%PNT_CP.length]};"></div><div><div class="pntname">${p.nom}</div><div class="pntsub">${p.tipus}</div></div><div class="pntval mv-r">${fmtE(deute)}</div><button class="ibtn d" style="margin-left:4px;" onclick="delPNTPassiu('${p.id}')"><i class="ti ti-trash"></i></button></div>`;}).join('');
 }
+let _pntModalMode=null;
 function addPntAccount(){
-  initPNT();const nom=prompt('Nom del compte:');if(!nom||!nom.trim())return;
-  const tipusIdx=parseInt(prompt('Tipus:\n1. Compte corrent\n2. Compte estalvi\n3. Compte inversió\n4. Altre'))||1;
-  const tipus=['Compte corrent','Compte estalvi','Compte inversió','Altre'][(tipusIdx-1)%4];
-  DB.pnt.comptes.push({id:'c'+Date.now(),nom:nom.trim(),tipus});scheduleSave();renderPNT();toast('Compte afegit.');
+  initPNT();
+  _pntModalMode='compte';
+  document.getElementById('pnt-modal-title').textContent='Afegir compte';
+  document.getElementById('pnt-modal-body').innerHTML=`
+    <div style="margin-bottom:12px;"><div class="elabel">Nom del compte</div><input class="einput" id="pnt-m-nom" type="text" placeholder="Ex: Compte corrent La Caixa" autofocus></div>
+    <div><div class="elabel">Tipus</div><select class="einput" id="pnt-m-tipus">
+      <option value="Compte corrent">Compte corrent</option>
+      <option value="Compte estalvi">Compte estalvi</option>
+      <option value="Compte inversió">Compte inversió</option>
+      <option value="Altre">Altre</option>
+    </select></div>`;
+  document.getElementById('pnt-modal').style.display='block';
+  setTimeout(()=>document.getElementById('pnt-m-nom').focus(),150);
 }
 function addPntLiability(){
-  initPNT();const nom=prompt('Nom del deute:');if(!nom||!nom.trim())return;
-  const tipusIdx=parseInt(prompt('Tipus:\n1. Targeta crèdit\n2. Préstec hipotecari\n3. Préstec personal\n4. Altre deute'))||1;
-  const tipus=['Targeta crèdit','Préstec hipotecari','Préstec personal','Altre deute'][(tipusIdx-1)%4];
-  DB.pnt.passius.push({id:'p'+Date.now(),nom:nom.trim(),tipus});scheduleSave();renderPNT();toast('Deute afegit.');
+  initPNT();
+  _pntModalMode='passiu';
+  document.getElementById('pnt-modal-title').textContent='Afegir deute';
+  document.getElementById('pnt-modal-body').innerHTML=`
+    <div style="margin-bottom:12px;"><div class="elabel">Nom del deute</div><input class="einput" id="pnt-m-nom" type="text" placeholder="Ex: Hipoteca pis" autofocus></div>
+    <div><div class="elabel">Tipus</div><select class="einput" id="pnt-m-tipus">
+      <option value="Targeta crèdit">Targeta crèdit</option>
+      <option value="Préstec hipotecari">Préstec hipotecari</option>
+      <option value="Préstec personal">Préstec personal</option>
+      <option value="Altre deute">Altre deute</option>
+    </select></div>`;
+  document.getElementById('pnt-modal').style.display='block';
+  setTimeout(()=>document.getElementById('pnt-m-nom').focus(),150);
 }
 function delPNTCompte(id){if(!confirm('Eliminar compte?'))return;DB.pnt.comptes=DB.pnt.comptes.filter(c=>c.id!==id);scheduleSave();renderPNT();}
 function delPNTPassiu(id){if(!confirm('Eliminar deute?'))return;DB.pnt.passius=DB.pnt.passius.filter(p=>p.id!==id);scheduleSave();renderPNT();}
 function addPntSnapshot(){
   initPNT();if(!DB.pnt.comptes.length&&!DB.pnt.passius.length){toast('Afegeix almenys un compte o deute primer.');return;}
-  const data=prompt('Data (AAAA-MM-DD):',new Date().toISOString().slice(0,10));if(!data)return;
-  const saldos={},deutes={};
-  for(const c of DB.pnt.comptes){const raw=prompt(`Saldo de "${c.nom}" (€):`);const v=parseFloat((raw||'').replace(',','.'));saldos[c.id]=isNaN(v)?0:Math.round(v*100)/100;}
-  for(const p of DB.pnt.passius){const raw=prompt(`Saldo pendent de "${p.nom}" (€):`);const v=parseFloat((raw||'').replace(',','.'));deutes[p.id]=isNaN(v)?0:Math.round(v*100)/100;}
-  DB.pnt.snapshots.push({id:'s'+Date.now(),data,saldos,deutes});scheduleSave();renderPNT();toast('Registre desat.');
+  _pntModalMode='snapshot';
+  const today=new Date().toISOString().slice(0,10);
+  let body=`<div style="margin-bottom:12px;"><div class="elabel">Data del registre</div><input class="einput" id="pnt-m-data" type="date" value="${today}"></div>`;
+  if(DB.pnt.comptes.length){
+    body+=`<div style="font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;margin-bottom:8px;">Saldos dels comptes (€)</div>`;
+    DB.pnt.comptes.forEach((c,i)=>{body+=`<div style="margin-bottom:8px;"><div class="elabel">${c.nom}</div><input class="einput" id="pnt-m-c-${c.id}" type="number" step="0.01" placeholder="0,00"></div>`;});
+  }
+  if(DB.pnt.passius.length){
+    body+=`<div style="font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;margin:12px 0 8px;">Saldo pendent dels deutes (€)</div>`;
+    DB.pnt.passius.forEach((p,i)=>{body+=`<div style="margin-bottom:8px;"><div class="elabel">${p.nom}</div><input class="einput" id="pnt-m-p-${p.id}" type="number" step="0.01" placeholder="0,00"></div>`;});
+  }
+  document.getElementById('pnt-modal-title').textContent='Nou registre de saldos';
+  document.getElementById('pnt-modal-body').innerHTML=body;
+  document.getElementById('pnt-modal').style.display='block';
+}
+function closePntModal(){document.getElementById('pnt-modal').style.display='none';_pntModalMode=null;}
+function savePntModal(){
+  if(_pntModalMode==='compte'){
+    const nom=(document.getElementById('pnt-m-nom').value||'').trim();if(!nom)return toast('Cal un nom.');
+    const tipus=document.getElementById('pnt-m-tipus').value;
+    DB.pnt.comptes.push({id:'c'+Date.now(),nom,tipus});scheduleSave();renderPNT();toast('Compte afegit.');closePntModal();
+  } else if(_pntModalMode==='passiu'){
+    const nom=(document.getElementById('pnt-m-nom').value||'').trim();if(!nom)return toast('Cal un nom.');
+    const tipus=document.getElementById('pnt-m-tipus').value;
+    DB.pnt.passius.push({id:'p'+Date.now(),nom:nom,tipus});scheduleSave();renderPNT();toast('Deute afegit.');closePntModal();
+  } else if(_pntModalMode==='snapshot'){
+    const data=document.getElementById('pnt-m-data').value;if(!data)return toast('Cal una data.');
+    const saldos={},deutes={};
+    DB.pnt.comptes.forEach(c=>{const v=parseFloat((document.getElementById('pnt-m-c-'+c.id).value||'').replace(',','.'));saldos[c.id]=isNaN(v)?0:Math.round(v*100)/100;});
+    DB.pnt.passius.forEach(p=>{const v=parseFloat((document.getElementById('pnt-m-p-'+p.id).value||'').replace(',','.'));deutes[p.id]=isNaN(v)?0:Math.round(v*100)/100;});
+    DB.pnt.snapshots.push({id:'s'+Date.now(),data,saldos,deutes});scheduleSave();renderPNT();toast('Registre desat.');closePntModal();
+  }
 }
 function renderPNTHistory(){
   const el=document.getElementById('pnt-history');if(!el)return;
@@ -2119,7 +2175,6 @@ function renderAll(){
 }
 
 ensureM();
-document.getElementById('period-bar').style.display='flex';
 // Comprovar si tornem d'una autenticació Google
 document.addEventListener('DOMContentLoaded', function(){
   checkAuthCallback();
